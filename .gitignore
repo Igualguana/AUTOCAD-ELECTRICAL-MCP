@@ -1,0 +1,92 @@
+# ══════════════════════════════════════════════════════════════════════════════
+#  AUTOCAD-ELECTRICAL-MCP  —  .gitignore
+#  Never commit secrets, credentials, local config, caches, or build artifacts.
+# ══════════════════════════════════════════════════════════════════════════════
+
+# ── Secrets & environment ────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+*.cer
+secrets.yaml
+secrets.json
+credentials.json
+api_keys.*
+
+# ── Claude Code local settings (machine-specific, never commit) ──────────────
+.claude/
+.mcp.json
+
+# ── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+env/
+ENV/
+.eggs/
+*.egg-info/
+dist/
+build/
+*.egg
+.installed.cfg
+pip-wheel-metadata/
+share/python-wheels/
+*.whl
+
+# ── Testing & coverage ───────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+nosetests.xml
+coverage.xml
+*.cover
+
+# ── IDEs & editors ───────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# ── Logs & temp ──────────────────────────────────────────────────────────────
+*.log
+*.log.*
+logs/
+*.tmp
+*.temp
+*.bak
+
+# ── AutoCAD output & temp files ─────────────────────────────────────────────
+*.ac$
+*.dwl
+*.dwl2
+*.sv$
+autosave/
+
+# ── AI model files (Ollama models live in ~/.ollama — never in project) ──────
+*.gguf
+*.ggml
+*.safetensors
+models/
+
+# ── OS ───────────────────────────────────────────────────────────────────────
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.lnk

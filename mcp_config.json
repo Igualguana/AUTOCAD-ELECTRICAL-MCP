@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "autocad-electrical": {
+      "command": "python",
+      "args": ["-m", "src.server"],
+      "cwd": "<absolute-path-to-project>",
+      "env": {}
+    }
+  }
+}

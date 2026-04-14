@@ -1,0 +1,32 @@
+active_provider: ollama
+providers:
+  claude:
+    api_key: ${ANTHROPIC_API_KEY}
+    model: claude-sonnet-4-6
+    max_tokens: 8192
+  ollama:
+    base_url: http://localhost:11434
+    model: qwen2.5:0.5b
+    timeout: 120
+  openai:
+    api_key: ${OPENAI_API_KEY}
+    base_url: https://api.openai.com/v1
+    model: gpt-4o
+  groq:
+    api_key: ${GROQ_API_KEY}
+    base_url: https://api.groq.com/openai/v1
+    model: llama-3.3-70b-versatile
+  lmstudio:
+    base_url: http://localhost:1234/v1
+    model: local-model
+    api_key: lm-studio
+autocad:
+  timeout: 30
+  com_object: AutoCAD.Application
+mcp:
+  server_name: autocad-electrical-mcp
+  server_version: 1.0.0
+  transport: stdio
+web:
+  host: 127.0.0.1
+  port: 8080

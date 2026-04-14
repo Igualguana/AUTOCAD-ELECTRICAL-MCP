@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AutoCAD Electrical — AI Control Center</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!--  TOPBAR                                                                 -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="logo">
+      <span class="logo-icon">⚡</span>
+      <span class="logo-text">AutoCAD Electrical <span class="logo-sub">AI Control Center</span></span>
+    </div>
+  </div>
+
+  <div class="topbar-center">
+    <div class="status-badge" id="badge-autocad">
+      <span class="status-dot" id="dot-autocad"></span>
+      <span class="status-label">AutoCAD</span>
+      <span class="status-value" id="val-autocad">—</span>
+    </div>
+    <div class="status-sep"></div>
+    <div class="status-badge" id="badge-ollama">
+      <span class="status-dot" id="dot-ollama"></span>
+      <span class="status-label">Ollama</span>
+      <span class="status-value" id="val-ollama">—</span>
+    </div>
+    <div class="status-sep"></div>
+    <div class="status-badge" id="badge-mcp">
+      <span class="status-dot dot-on"></span>
+      <span class="status-label">MCP</span>
+      <span class="status-value" id="val-mcp">—</span>
+    </div>
+    <div class="status-sep"></div>
+    <div class="status-badge">
+      <span class="status-dot dot-on"></span>
+      <span class="status-label">Drawing</span>
+      <span class="status-value" id="val-drawing">—</span>
+    </div>
+  </div>
+
+  <div class="topbar-right">
+    <select class="provider-select" id="provider-select" title="Active AI provider"></select>
+    <button class="btn-icon" id="btn-refresh" title="Refresh status">↻</button>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!--  LAYOUT                                                                 -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div class="layout">
+
+  <!-- ── SIDEBAR ──────────────────────────────────────────────────────── -->
+  <nav class="sidebar">
+    <button class="nav-btn active" data-panel="chat" title="Chat">
+      <span class="nav-icon">💬</span>
+      <span class="nav-label">Chat</span>
+    </button>
+    <button class="nav-btn" data-panel="tools" title="Herramientas MCP">
+      <span class="nav-icon">🔧</span>
+      <span class="nav-label">Tools</span>
+    </button>
+    <button class="nav-btn" data-panel="logs" title="Logs del sistema">
+      <span class="nav-icon">📋</span>
+      <span class="nav-label">Logs</span>
+    </button>
+    <button class="nav-btn" data-panel="drawing" title="Dibujo activo">
+      <span class="nav-icon">📐</span>
+      <span class="nav-label">Drawing</span>
+    </button>
+  </nav>
+
+  <!-- ── MAIN CONTENT ─────────────────────────────────────────────────── -->
+  <main class="content">
+
+    <!-- ┌─ PANEL: CHAT ─────────────────────────────────────────────────┐ -->
+    <section class="panel active" id="panel-chat">
+      <div class="panel-header">
+        <h2>Instrucciones de lenguaje natural → AutoCAD</h2>
+        <div class="panel-actions">
+          <button class="btn-sm" id="btn-clear-history">Limpiar historial</button>
+        </div>
+      </div>
+
+      <div class="chat-area" id="chat-area">
+        <div class="chat-welcome">
+          <div class="welcome-icon">⚡</div>
+          <h3>AutoCAD Electrical AI Control Center</h3>
+          <p>Escribe una instrucción en lenguaje natural para controlar AutoCAD.<br>
+             El motor IA interpretará tu instrucción y ejecutará la herramienta correcta.</p>
+          <div class="welcome-examples">
+            <span class="example-chip" data-msg="¿Cuál es el dibujo activo?" data-mode="auto">Dibujo activo</span>
+            <span class="example-chip" data-msg="Dibuja una línea de 0,0 a 100,50" data-mode="2d">Línea 2D</span>
+            <span class="example-chip" data-msg="Dibuja un rectángulo de 0,0 a 80,60" data-mode="2d">Rectángulo 2D</span>
+            <span class="example-chip" data-msg="Crea una caja 3D de 80x80x80 en el origen" data-mode="3d">Caja 3D</span>
+            <span class="example-chip" data-msg="Dibuja una línea 3D de 0,0,0 a 100,100,100" data-mode="3d">Línea 3D</span>
+            <span class="example-chip" data-msg="Cambia a vista isométrica SE" data-mode="3d">Vista isométrica</span>
+            <span class="example-chip" data-msg="Genera el BOM del proyecto" data-mode="electrical">BOM eléctrico</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-input-area">
+        <!-- Mode selector row -->
+        <div class="chat-mode-row">
+          <span class="mode-label">Modo:</span>
+          <div class="mode-buttons" id="mode-buttons">
+            <button class="mode-btn" data-mode="auto"        title="El modelo decide qué herramientas usar">Auto</button>
+            <button class="mode-btn" data-mode="electrical"  title="Esquemas eléctricos, escalera, símbolos WD">Electrical</button>
+            <button class="mode-btn active" data-mode="2d"   title="Líneas, arcos, texto, rectángulos, capas">2D</button>
+            <button class="mode-btn" data-mode="3d"          title="Cajas, esferas, cilindros, líneas 3D, UCS">3D</button>
+          </div>
+          <span class="mode-hint" id="mode-hint">14 herramientas · Drawing + Project</span>
+        </div>
+
+        <div class="chat-input-row">
+          <textarea
+            id="chat-input"
+            class="chat-input"
+            placeholder="Escribe una instrucción para AutoCAD…"
+            rows="2"
+          ></textarea>
+          <button class="btn-send" id="btn-send" title="Enviar (Enter)">
+            <span id="send-icon">▶</span>
+          </button>
+        </div>
+        <div class="chat-input-meta">
+          <span class="meta-hint">Enter para enviar · Shift+Enter para nueva línea</span>
+          <span class="meta-provider" id="meta-provider">Motor: —</span>
+        </div>
+      </div>
+    </section>
+    <!-- └───────────────────────────────────────────────────────────────┘ -->
+
+    <!-- ┌─ PANEL: TOOLS ────────────────────────────────────────────────┐ -->
+    <section class="panel" id="panel-tools">
+      <div class="panel-header">
+        <h2>Herramientas MCP disponibles</h2>
+        <div class="panel-actions">
+          <input type="text" class="search-input" id="tools-search" placeholder="Buscar herramienta…" />
+        </div>
+      </div>
+      <div class="tools-grid" id="tools-grid">
+        <div class="loading-msg">Cargando herramientas…</div>
+      </div>
+    </section>
+    <!-- └───────────────────────────────────────────────────────────────┘ -->
+
+    <!-- ┌─ PANEL: LOGS ─────────────────────────────────────────────────┐ -->
+    <section class="panel" id="panel-logs">
+      <div class="panel-header">
+        <h2>Logs del sistema</h2>
+        <div class="panel-actions">
+          <select class="btn-sm" id="log-level-filter">
+            <option value="DEBUG">Todos</option>
+            <option value="INFO">INFO+</option>
+            <option value="WARN">WARN+</option>
+            <option value="ERROR">Solo errores</option>
+          </select>
+          <button class="btn-sm" id="btn-clear-logs">Limpiar</button>
+        </div>
+      </div>
+      <div class="log-area" id="log-area">
+        <div class="loading-msg">Cargando logs…</div>
+      </div>
+    </section>
+    <!-- └───────────────────────────────────────────────────────────────┘ -->
+
+    <!-- ┌─ PANEL: DRAWING ──────────────────────────────────────────────┐ -->
+    <section class="panel" id="panel-drawing">
+      <div class="panel-header">
+        <h2>Dibujo activo y proyecto</h2>
+        <div class="panel-actions">
+          <button class="btn-sm" id="btn-refresh-drawing">↻ Actualizar</button>
+        </div>
+      </div>
+      <div class="drawing-info" id="drawing-info">
+        <div class="loading-msg">Cargando información del dibujo…</div>
+      </div>
+    </section>
+    <!-- └───────────────────────────────────────────────────────────────┘ -->
+
+  </main>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!--  TOAST NOTIFICATION                                                      -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div class="toast" id="toast"></div>
+
+<script src="/static/js/api.js"></script>
+<script src="/static/js/main.js"></script>
+</body>
+</html>

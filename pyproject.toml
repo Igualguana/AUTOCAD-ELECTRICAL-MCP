@@ -1,0 +1,42 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "autocad-electrical-mcp"
+version = "1.0.0"
+description = "MCP Server for AutoCAD Electrical 2025"
+requires-python = ">=3.11"
+dependencies = [
+    "mcp>=1.0.0",
+    "pywin32>=306",
+    "pyautocad>=0.2.0",
+    "pyyaml>=6.0",
+    "python-dotenv>=1.0.0",
+    "anthropic>=0.40.0",
+    "openai>=1.0.0",
+    "httpx>=0.27.0",
+    "click>=8.1.0",
+    "rich>=13.0.0",
+    # Web interface (Mode B — without Claude)
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.29.0",
+]
+
+[project.scripts]
+autocad-mcp = "src.server:main"
+switch-model = "scripts.switch_model:main"
+autocad-web = "start_web:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "integration: marks tests that require a live AutoCAD Electrical 2025 instance (deselect with '-m not integration')",
+]
+
+[tool.coverage.run]
+source = ["src"]
+omit = ["tests/*", "scripts/*"]

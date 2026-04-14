@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 620" font-family="Segoe UI,system-ui,sans-serif">
+  <rect width="1000" height="620" fill="#080c14"/>
+  <!-- Topbar -->
+  <rect width="1000" height="52" fill="#0d1117" stroke="#30363d" stroke-width="1"/>
+  <circle cx="24" cy="26" r="10" fill="#58a6ff" opacity="0.9"/>
+  <text x="44" y="22" fill="#e6edf3" font-size="13" font-weight="700">AutoCAD Electrical</text>
+  <text x="44" y="37" fill="#8b949e" font-size="10">AI Control Center</text>
+  <!-- Status badges -->
+  <circle cx="330" cy="26" r="5" fill="#3fb950"/>
+  <text x="342" y="30" fill="#8b949e" font-size="11">AutoCAD</text>
+  <text x="400" y="30" fill="#e6edf3" font-size="11">Drawing1.dwg</text>
+  <circle cx="500" cy="26" r="5" fill="#3fb950"/>
+  <text x="512" y="30" fill="#8b949e" font-size="11">Ollama</text>
+  <text x="556" y="30" fill="#e6edf3" font-size="11">2 modelos</text>
+  <circle cx="630" cy="26" r="5" fill="#58a6ff"/>
+  <text x="642" y="30" fill="#8b949e" font-size="11">MCP</text>
+  <text x="670" y="30" fill="#e6edf3" font-size="11">46 tools</text>
+  <!-- Provider selector -->
+  <rect x="820" y="12" width="120" height="28" rx="6" fill="#161b22" stroke="#30363d"/>
+  <text x="880" y="30" text-anchor="middle" fill="#8b949e" font-size="11">ollama · qwen2.5:0.5b</text>
+  <!-- Sidebar -->
+  <rect x="0" y="52" width="68" height="568" fill="#0d1117" stroke="#30363d" stroke-width="1"/>
+  <rect x="8" y="70" width="52" height="52" rx="8" fill="#1f4280"/>
+  <text x="34" y="92" text-anchor="middle" fill="#58a6ff" font-size="18">💬</text>
+  <text x="34" y="114" text-anchor="middle" fill="#79c0ff" font-size="9" font-weight="600">Chat</text>
+  <text x="34" y="148" text-anchor="middle" fill="#484f58" font-size="18">🔧</text>
+  <text x="34" y="165" text-anchor="middle" fill="#484f58" font-size="9">Tools</text>
+  <text x="34" y="200" text-anchor="middle" fill="#484f58" font-size="18">📋</text>
+  <text x="34" y="217" text-anchor="middle" fill="#484f58" font-size="9">Logs</text>
+  <text x="34" y="252" text-anchor="middle" fill="#484f58" font-size="18">📐</text>
+  <text x="34" y="269" text-anchor="middle" fill="#484f58" font-size="9">Drawing</text>
+  <!-- Main panel -->
+  <rect x="68" y="52" width="932" height="568" fill="#080c14"/>
+  <!-- Panel header -->
+  <rect x="68" y="52" width="932" height="50" fill="#0d1117" stroke="#30363d" stroke-width="0" stroke-dasharray="0"/>
+  <line x1="68" y1="102" x2="1000" y2="102" stroke="#30363d" stroke-width="1"/>
+  <text x="88" y="83" fill="#e6edf3" font-size="14" font-weight="600">Instrucciones de lenguaje natural → AutoCAD</text>
+  <rect x="870" y="66" width="110" height="26" rx="5" fill="#161b22" stroke="#30363d"/>
+  <text x="925" y="83" text-anchor="middle" fill="#8b949e" font-size="11">Limpiar historial</text>
+  <!-- Chat messages -->
+  <!-- User msg -->
+  <rect x="580" y="120" width="390" height="42" rx="8" fill="#1f4280"/>
+  <text x="775" y="138" text-anchor="middle" fill="#e6edf3" font-size="12">dibuja un tornillo 3D</text>
+  <text x="958" y="153" text-anchor="end" fill="#484f58" font-size="10">14:17</text>
+  <!-- Tool result -->
+  <rect x="80" y="175" width="440" height="120" rx="8" fill="#161b22" stroke="#3fb950" stroke-width="1"/>
+  <rect x="80" y="175" width="200" height="24" rx="4" fill="#1a3a22"/>
+  <text x="92" y="191" fill="#3fb950" font-size="11" font-weight="600">✓ compound: dibuja un tornillo 3D</text>
+  <text x="92" y="218" fill="#8b949e" font-size="10">Dibujo compuesto completado: 5/5 pasos OK</text>
+  <text x="92" y="236" fill="#8b949e" font-size="10">Handles AutoCAD: B92, B93, B94</text>
+  <text x="92" y="255" fill="#484f58" font-size="10">[01] ✓ set_layer     SCREW    (verde)</text>
+  <text x="92" y="270" fill="#484f58" font-size="10">[02] ✓ draw_cylinder  handle=B92   Cuerpo r=5 h=30</text>
+  <text x="92" y="285" fill="#484f58" font-size="10">[03] ✓ draw_cone      handle=B93   Punta h=8</text>
+  <!-- User msg 2 -->
+  <rect x="540" y="310" width="430" height="42" rx="8" fill="#1f4280"/>
+  <text x="755" y="328" text-anchor="middle" fill="#e6edf3" font-size="12">dibuja un esquema electrico simple de motor</text>
+  <text x="958" y="343" text-anchor="end" fill="#484f58" font-size="10">14:17</text>
+  <!-- Tool result 2 -->
+  <rect x="80" y="365" width="500" height="90" rx="8" fill="#161b22" stroke="#3fb950" stroke-width="1"/>
+  <rect x="80" y="365" width="250" height="24" rx="4" fill="#1a3a22"/>
+  <text x="92" y="381" fill="#3fb950" font-size="11" font-weight="600">✓ compound: esquema electrico motor</text>
+  <text x="92" y="404" fill="#8b949e" font-size="10">Dibujo compuesto completado: 31/31 pasos OK</text>
+  <text x="92" y="422" fill="#8b949e" font-size="10">Handles: B97, B98, B99, B9A, B9B... (+26 entidades)</text>
+  <text x="92" y="440" fill="#484f58" font-size="10">Capas: RAILS · CABLES · SYMBOLS · TEXT_ELEC</text>
+  <!-- Mode selector -->
+  <rect x="68" y="465" width="932" height="1" fill="#30363d"/>
+  <rect x="68" y="466" width="932" height="90" fill="#0d1117"/>
+  <text x="88" y="490" fill="#8b949e" font-size="10" font-weight="600">MODO:</text>
+  <rect x="120" y="478" width="50" height="22" rx="11" fill="#161b22" stroke="#30363d"/>
+  <text x="145" y="493" text-anchor="middle" fill="#8b949e" font-size="11">Auto</text>
+  <rect x="178" y="478" width="75" height="22" rx="11" fill="#161b22" stroke="#30363d"/>
+  <text x="215" y="493" text-anchor="middle" fill="#8b949e" font-size="11">Electrical</text>
+  <rect x="261" y="478" width="38" height="22" rx="11" fill="#161b22" stroke="#30363d"/>
+  <text x="280" y="493" text-anchor="middle" fill="#8b949e" font-size="11">2D</text>
+  <rect x="307" y="478" width="38" height="22" rx="11" fill="#1f4280" stroke="#58a6ff"/>
+  <text x="326" y="493" text-anchor="middle" fill="#79c0ff" font-size="11" font-weight="600">3D</text>
+  <text x="360" y="493" fill="#484f58" font-size="10">23 herramientas · Drawing + Drawing3D + Project</text>
+  <!-- Chat input -->
+  <rect x="80" y="508" width="850" height="38" rx="10" fill="#161b22" stroke="#30363d"/>
+  <text x="100" y="531" fill="#484f58" font-size="12">Instrucción 3D (caja, esfera, cilindro, línea 3D, vista)…</text>
+  <circle cx="908" cy="527" r="16" fill="#58a6ff"/>
+  <text x="908" y="532" text-anchor="middle" fill="#fff" font-size="14">▶</text>
+  <!-- Meta -->
+  <text x="100" y="558" fill="#484f58" font-size="10">Enter para enviar · Shift+Enter para nueva línea</text>
+  <text x="880" y="558" text-anchor="end" fill="#484f58" font-size="10">Motor: ollama / qwen2.5:0.5b</text>
+</svg>
