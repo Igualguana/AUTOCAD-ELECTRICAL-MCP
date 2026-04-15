@@ -32,7 +32,7 @@ if str(_PROJECT_ROOT) not in sys.path:
 import httpx
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -47,6 +47,11 @@ from web.backend.state import (
     clear_logs,
     get_history,
     get_logs,
+)
+from src.tools.project import (
+    list_drawings  as _tool_list_drawings,
+    open_drawing   as _tool_open_drawing,
+    get_active_drawing as _tool_get_active,
 )
 
 logger = logging.getLogger(__name__)
@@ -83,6 +88,37 @@ add_log("INFO", "Web backend initialised — AutoCAD Electrical Mode B", "system
 @app.get("/", include_in_schema=False)
 def root() -> FileResponse:
     return FileResponse(str(_FRONTEND_DIR / "index.html"))
+
+
+# ---------------------------------------------------------------------------
+# PWA — manifest, service worker, favicon
+# ---------------------------------------------------------------------------
+
+@app.get("/manifest.json", include_in_schema=False)
+def manifest_json() -> FileResponse:
+    return FileResponse(
+        str(_FRONTEND_DIR / "manifest.json"),
+        media_type="application/manifest+json",
+    )
+
+
+@app.get("/sw.js", include_in_schema=False)
+def service_worker() -> FileResponse:
+    # Service-Worker-Allowed header lets the SW control scope "/"
+    # even though the file is served from /sw.js.
+    return FileResponse(
+        str(_FRONTEND_DIR / "sw.js"),
+        media_type="application/javascript",
+        headers={"Service-Worker-Allowed": "/"},
+    )
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon() -> FileResponse:
+    return FileResponse(
+        str(_FRONTEND_DIR / "icons" / "favicon.png"),
+        media_type="image/png",
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -229,6 +265,68 @@ def delete_history() -> dict[str, bool]:
 # ---------------------------------------------------------------------------
 # Drawing info
 # ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Drawing management — list open drawings, open/activate a drawing
+# ---------------------------------------------------------------------------
+
+@app.get("/api/drawings")
+def get_drawings() -> dict[str, Any]:
+    """Return all drawings currently open in AutoCAD, marked with which is active.
+    Each drawing entry is enriched with file_size (bytes) and last_modified (unix ts).
+    """
+    import os as _os
+    try:
+        try:
+            import pythoncom
+            pythoncom.CoInitialize()
+        except Exception:
+            pass
+        result = _tool_list_drawings()
+        if result.get("success"):
+            for dwg in result.get("drawings", []):
+                path = dwg.get("full_path", "")
+                try:
+                    if path and _os.path.exists(path):
+                        st = _os.stat(path)
+                        dwg["file_size"]     = st.st_size
+                        dwg["last_modified"] = st.st_mtime
+                    else:
+                        dwg["file_size"]     = 0
+                        dwg["last_modified"] = 0
+                except Exception:
+                    dwg["file_size"]     = 0
+                    dwg["last_modified"] = 0
+        return result
+    except Exception as exc:
+        return {"success": False, "error": str(exc), "drawings": [], "count": 0}
+
+
+class OpenDrawingRequest(BaseModel):
+    name_or_path: str
+
+
+@app.post("/api/drawings/open")
+def open_drawing_endpoint(req: OpenDrawingRequest) -> dict[str, Any]:
+    """Open or activate a drawing by sheet number, file name, or partial path."""
+    if not req.name_or_path.strip():
+        raise HTTPException(status_code=400, detail="name_or_path cannot be empty.")
+    try:
+        try:
+            import pythoncom
+            pythoncom.CoInitialize()
+        except Exception:
+            pass
+        result = _tool_open_drawing(req.name_or_path)
+        if result.get("success"):
+            add_log("INFO", f"Drawing activated: {result.get('drawing', req.name_or_path)}", "drawings")
+        else:
+            add_log("WARN", f"Could not open drawing: {result.get('error', '?')}", "drawings")
+        return result
+    except Exception as exc:
+        add_log("ERROR", f"open_drawing exception: {exc}", "drawings")
+        raise HTTPException(status_code=500, detail=str(exc))
+
 
 @app.get("/api/drawing/info")
 def get_drawing_info() -> dict[str, Any]:

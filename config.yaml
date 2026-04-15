@@ -1,7 +1,7 @@
-active_provider: ollama
+active_provider: claude
 providers:
   claude:
-    api_key: ${ANTHROPIC_API_KEY}
+    api_key: ''
     model: claude-sonnet-4-6
     max_tokens: 8192
   ollama:
@@ -9,11 +9,11 @@ providers:
     model: qwen2.5:0.5b
     timeout: 120
   openai:
-    api_key: ${OPENAI_API_KEY}
+    api_key: your_openai_api_key_here
     base_url: https://api.openai.com/v1
     model: gpt-4o
   groq:
-    api_key: ${GROQ_API_KEY}
+    api_key: your_groq_api_key_here
     base_url: https://api.groq.com/openai/v1
     model: llama-3.3-70b-versatile
   lmstudio:

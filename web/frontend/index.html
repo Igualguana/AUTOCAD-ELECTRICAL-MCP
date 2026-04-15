@@ -1,9 +1,24 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AutoCAD Electrical — AI Control Center</title>
+  <title>AutoCAD Electrical MCP</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#4fa3f7" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="AutoCAD MCP" />
+  <meta name="application-name" content="AutoCAD MCP" />
+  <meta name="description" content="AI Control Center for AutoCAD Electrical — natural language automation via MCP" />
+
+  <!-- Icons -->
+  <link rel="icon" type="image/png" href="/favicon.ico" />
+  <link rel="apple-touch-icon" href="/static/icons/icon-192.png" />
+
   <link rel="stylesheet" href="/static/css/style.css" />
 </head>
 <body>
@@ -12,43 +27,65 @@
 <!--  TOPBAR                                                                 -->
 <!-- ═══════════════════════════════════════════════════════════════════════ -->
 <header class="topbar">
+
   <div class="topbar-left">
     <div class="logo">
-      <span class="logo-icon">⚡</span>
-      <span class="logo-text">AutoCAD Electrical <span class="logo-sub">AI Control Center</span></span>
+      <span class="logo-bolt">⚡</span>
+      <div class="logo-text-group">
+        <span class="logo-name">AutoCAD MCP</span>
+        <span class="logo-sub">AI Dashboard</span>
+      </div>
     </div>
   </div>
 
   <div class="topbar-center">
     <div class="status-badge" id="badge-autocad">
       <span class="status-dot" id="dot-autocad"></span>
-      <span class="status-label">AutoCAD</span>
+      <span class="status-label" data-i18n="status.autocad">AutoCAD</span>
       <span class="status-value" id="val-autocad">—</span>
     </div>
     <div class="status-sep"></div>
     <div class="status-badge" id="badge-ollama">
       <span class="status-dot" id="dot-ollama"></span>
-      <span class="status-label">Ollama</span>
+      <span class="status-label" data-i18n="status.ollama">Ollama</span>
       <span class="status-value" id="val-ollama">—</span>
-    </div>
-    <div class="status-sep"></div>
-    <div class="status-badge" id="badge-mcp">
-      <span class="status-dot dot-on"></span>
-      <span class="status-label">MCP</span>
-      <span class="status-value" id="val-mcp">—</span>
     </div>
     <div class="status-sep"></div>
     <div class="status-badge">
       <span class="status-dot dot-on"></span>
-      <span class="status-label">Drawing</span>
+      <span class="status-label" data-i18n="status.mcp">MCP</span>
+      <span class="status-value" id="val-mcp">—</span>
+    </div>
+    <div class="status-sep"></div>
+    <div class="status-badge status-badge--drawing" id="badge-drawing">
+      <span class="status-dot dot-on drawing-dot"></span>
+      <span class="status-label" data-i18n="status.drawing">Drawing</span>
       <span class="status-value" id="val-drawing">—</span>
     </div>
   </div>
 
   <div class="topbar-right">
-    <select class="provider-select" id="provider-select" title="Active AI provider"></select>
-    <button class="btn-icon" id="btn-refresh" title="Refresh status">↻</button>
+    <!-- Language switcher -->
+    <div class="lang-switcher" id="lang-switcher">
+      <button class="lang-btn" data-lang="en">EN</button>
+      <button class="lang-btn" data-lang="es">ES</button>
+    </div>
+
+    <!-- PWA install button (shown only when installable) -->
+    <button class="btn-install" id="btn-install"
+      data-i18n-title="topbar.install" aria-label="Install App">
+      Install App
+    </button>
+
+    <!-- Provider selector -->
+    <select class="provider-select" id="provider-select"
+      title="Active AI provider"></select>
+
+    <!-- Refresh status -->
+    <button class="btn-icon" id="btn-refresh"
+      data-i18n-title="topbar.refresh" title="Refresh status">↻</button>
   </div>
+
 </header>
 
 <!-- ═══════════════════════════════════════════════════════════════════════ -->
@@ -58,21 +95,46 @@
 
   <!-- ── SIDEBAR ──────────────────────────────────────────────────────── -->
   <nav class="sidebar">
-    <button class="nav-btn active" data-panel="chat" title="Chat">
-      <span class="nav-icon">💬</span>
-      <span class="nav-label">Chat</span>
+    <button class="nav-btn active" data-panel="chat">
+      <span class="nav-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+      </span>
+      <span class="nav-label" data-i18n="nav.chat">Chat</span>
     </button>
-    <button class="nav-btn" data-panel="tools" title="Herramientas MCP">
-      <span class="nav-icon">🔧</span>
-      <span class="nav-label">Tools</span>
+    <button class="nav-btn" data-panel="tools">
+      <span class="nav-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+        </svg>
+      </span>
+      <span class="nav-label" data-i18n="nav.tools">Tools</span>
     </button>
-    <button class="nav-btn" data-panel="logs" title="Logs del sistema">
-      <span class="nav-icon">📋</span>
-      <span class="nav-label">Logs</span>
+    <button class="nav-btn" data-panel="drawings">
+      <span class="nav-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+          <polyline points="10 9 9 9 8 9"/>
+        </svg>
+      </span>
+      <span class="nav-label" data-i18n="nav.drawings">Drawings</span>
     </button>
-    <button class="nav-btn" data-panel="drawing" title="Dibujo activo">
-      <span class="nav-icon">📐</span>
-      <span class="nav-label">Drawing</span>
+    <button class="nav-btn" data-panel="logs">
+      <span class="nav-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="8" y1="6" x2="21" y2="6"/>
+          <line x1="8" y1="12" x2="21" y2="12"/>
+          <line x1="8" y1="18" x2="21" y2="18"/>
+          <line x1="3" y1="6" x2="3.01" y2="6"/>
+          <line x1="3" y1="12" x2="3.01" y2="12"/>
+          <line x1="3" y1="18" x2="3.01" y2="18"/>
+        </svg>
+      </span>
+      <span class="nav-label" data-i18n="nav.logs">Logs</span>
     </button>
   </nav>
 
@@ -82,119 +144,204 @@
     <!-- ┌─ PANEL: CHAT ─────────────────────────────────────────────────┐ -->
     <section class="panel active" id="panel-chat">
       <div class="panel-header">
-        <h2>Instrucciones de lenguaje natural → AutoCAD</h2>
+        <h2 data-i18n="chat.title">Natural language → AutoCAD</h2>
         <div class="panel-actions">
-          <button class="btn-sm" id="btn-clear-history">Limpiar historial</button>
+          <button class="btn-sm" id="btn-clear-history"
+            data-i18n="chat.clearHistory">Clear history</button>
         </div>
       </div>
 
       <div class="chat-area" id="chat-area">
-        <div class="chat-welcome">
-          <div class="welcome-icon">⚡</div>
-          <h3>AutoCAD Electrical AI Control Center</h3>
-          <p>Escribe una instrucción en lenguaje natural para controlar AutoCAD.<br>
-             El motor IA interpretará tu instrucción y ejecutará la herramienta correcta.</p>
-          <div class="welcome-examples">
-            <span class="example-chip" data-msg="¿Cuál es el dibujo activo?" data-mode="auto">Dibujo activo</span>
-            <span class="example-chip" data-msg="Dibuja una línea de 0,0 a 100,50" data-mode="2d">Línea 2D</span>
-            <span class="example-chip" data-msg="Dibuja un rectángulo de 0,0 a 80,60" data-mode="2d">Rectángulo 2D</span>
-            <span class="example-chip" data-msg="Crea una caja 3D de 80x80x80 en el origen" data-mode="3d">Caja 3D</span>
-            <span class="example-chip" data-msg="Dibuja una línea 3D de 0,0,0 a 100,100,100" data-mode="3d">Línea 3D</span>
-            <span class="example-chip" data-msg="Cambia a vista isométrica SE" data-mode="3d">Vista isométrica</span>
-            <span class="example-chip" data-msg="Genera el BOM del proyecto" data-mode="electrical">BOM eléctrico</span>
+        <div class="chat-welcome" id="chat-welcome">
+          <div class="welcome-bolt">⚡</div>
+          <h3 data-i18n="chat.welcome.title">AutoCAD Electrical MCP</h3>
+          <p id="welcome-subtitle"></p>
+          <div class="welcome-examples" id="welcome-examples">
+            <button class="example-chip" data-msg-key="chat.welcome.chips.activeDrawing" data-mode="auto">—</button>
+            <button class="example-chip" data-msg-key="chat.welcome.chips.line2d"        data-mode="2d">—</button>
+            <button class="example-chip" data-msg-key="chat.welcome.chips.rect2d"        data-mode="2d">—</button>
+            <button class="example-chip" data-msg-key="chat.welcome.chips.box3d"         data-mode="3d">—</button>
+            <button class="example-chip" data-msg-key="chat.welcome.chips.line3d"        data-mode="3d">—</button>
+            <button class="example-chip" data-msg-key="chat.welcome.chips.isoView"       data-mode="3d">—</button>
+            <button class="example-chip" data-msg-key="chat.welcome.chips.bom"           data-mode="electrical">—</button>
           </div>
         </div>
       </div>
 
       <div class="chat-input-area">
-        <!-- Mode selector row -->
+        <!-- Mode row -->
         <div class="chat-mode-row">
-          <span class="mode-label">Modo:</span>
+          <span class="mode-label" data-i18n="chat.modeLabelHint">Mode</span>
           <div class="mode-buttons" id="mode-buttons">
-            <button class="mode-btn" data-mode="auto"        title="El modelo decide qué herramientas usar">Auto</button>
-            <button class="mode-btn" data-mode="electrical"  title="Esquemas eléctricos, escalera, símbolos WD">Electrical</button>
-            <button class="mode-btn active" data-mode="2d"   title="Líneas, arcos, texto, rectángulos, capas">2D</button>
-            <button class="mode-btn" data-mode="3d"          title="Cajas, esferas, cilindros, líneas 3D, UCS">3D</button>
+            <button class="mode-btn mode-auto"        data-mode="auto">Auto</button>
+            <button class="mode-btn mode-electrical"  data-mode="electrical">Electrical</button>
+            <button class="mode-btn mode-2d active"   data-mode="2d">2D</button>
+            <button class="mode-btn mode-3d"          data-mode="3d">3D</button>
           </div>
-          <span class="mode-hint" id="mode-hint">14 herramientas · Drawing + Project</span>
+          <span class="mode-hint" id="mode-hint"></span>
         </div>
 
         <div class="chat-input-row">
-          <textarea
-            id="chat-input"
-            class="chat-input"
-            placeholder="Escribe una instrucción para AutoCAD…"
-            rows="2"
-          ></textarea>
-          <button class="btn-send" id="btn-send" title="Enviar (Enter)">
-            <span id="send-icon">▶</span>
+          <textarea id="chat-input" class="chat-input" rows="2"></textarea>
+          <button class="btn-send" id="btn-send">
+            <span id="send-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/>
+              </svg>
+            </span>
           </button>
         </div>
+
         <div class="chat-input-meta">
-          <span class="meta-hint">Enter para enviar · Shift+Enter para nueva línea</span>
-          <span class="meta-provider" id="meta-provider">Motor: —</span>
+          <span data-i18n="chat.metaHint">Enter to send · Shift+Enter for new line</span>
+          <span class="meta-provider" id="meta-provider"></span>
         </div>
       </div>
     </section>
-    <!-- └───────────────────────────────────────────────────────────────┘ -->
 
     <!-- ┌─ PANEL: TOOLS ────────────────────────────────────────────────┐ -->
     <section class="panel" id="panel-tools">
       <div class="panel-header">
-        <h2>Herramientas MCP disponibles</h2>
+        <h2 data-i18n="tools.title">Available MCP Tools</h2>
         <div class="panel-actions">
-          <input type="text" class="search-input" id="tools-search" placeholder="Buscar herramienta…" />
+          <input type="text" class="search-input" id="tools-search"
+            data-i18n-placeholder="tools.searchPlaceholder" />
         </div>
       </div>
       <div class="tools-grid" id="tools-grid">
-        <div class="loading-msg">Cargando herramientas…</div>
+        <div class="loading-msg" data-i18n="tools.loading">Loading tools…</div>
       </div>
     </section>
-    <!-- └───────────────────────────────────────────────────────────────┘ -->
+
+    <!-- ┌─ PANEL: DRAWINGS ─────────────────────────────────────────────┐ -->
+    <section class="panel" id="panel-drawings">
+      <div class="panel-header">
+        <h2 data-i18n="drawings.title">Drawings</h2>
+        <div class="panel-actions">
+          <button class="btn-primary" id="btn-open-drawing-toggle">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            <span data-i18n="drawings.openButton">Open Drawing</span>
+          </button>
+          <button class="btn-icon" id="btn-refresh-drawings"
+            data-i18n-title="drawings.refresh" title="Refresh">↻</button>
+        </div>
+      </div>
+
+      <!-- Open Drawing form (collapsed) -->
+      <div class="open-drawing-form" id="open-drawing-form" style="display:none">
+        <div class="form-body">
+          <div class="form-row">
+            <input type="text" class="form-input" id="drawing-name-input"
+              data-i18n-placeholder="drawings.pathPlaceholder" />
+            <button class="btn-primary btn-sm-primary" id="btn-do-open-drawing">
+              <span data-i18n="drawings.openAction">Open</span>
+            </button>
+            <button class="btn-sm" id="btn-cancel-open-drawing">
+              <span data-i18n="drawings.cancel">Cancel</span>
+            </button>
+          </div>
+          <p class="form-hint" data-i18n="drawings.hint"></p>
+        </div>
+      </div>
+
+      <!-- Drawings content -->
+      <div class="drawings-content" id="drawings-content">
+
+        <!-- Active Drawing -->
+        <div class="drawings-section">
+          <div class="section-header">
+            <span class="section-label" data-i18n="drawings.activeSection">Active Drawing</span>
+          </div>
+          <div id="active-drawing-card"></div>
+        </div>
+
+        <!-- Open Drawings -->
+        <div class="drawings-section">
+          <div class="section-header">
+            <span class="section-label" data-i18n="drawings.openSection">Open Drawings</span>
+          </div>
+          <div id="drawings-list"></div>
+        </div>
+
+        <!-- Recent Drawings (localStorage) -->
+        <div class="drawings-section" id="recent-section">
+          <div class="section-header">
+            <span class="section-label" data-i18n="drawings.recentSection">Recent Drawings</span>
+            <button class="btn-link" id="btn-clear-recent" style="display:none">✕</button>
+          </div>
+          <div id="recent-drawings-list"></div>
+        </div>
+
+      </div>
+    </section>
 
     <!-- ┌─ PANEL: LOGS ─────────────────────────────────────────────────┐ -->
     <section class="panel" id="panel-logs">
       <div class="panel-header">
-        <h2>Logs del sistema</h2>
+        <h2 data-i18n="logs.title">System Logs</h2>
         <div class="panel-actions">
-          <select class="btn-sm" id="log-level-filter">
-            <option value="DEBUG">Todos</option>
-            <option value="INFO">INFO+</option>
-            <option value="WARN">WARN+</option>
-            <option value="ERROR">Solo errores</option>
+          <select class="select-sm" id="log-level-filter">
+            <option value="DEBUG" data-i18n="logs.all">All</option>
+            <option value="INFO"  data-i18n="logs.infoPlus">INFO+</option>
+            <option value="WARN"  data-i18n="logs.warnPlus">WARN+</option>
+            <option value="ERROR" data-i18n="logs.errorsOnly">Errors only</option>
           </select>
-          <button class="btn-sm" id="btn-clear-logs">Limpiar</button>
+          <button class="btn-sm" id="btn-clear-logs" data-i18n="logs.clear">Clear</button>
         </div>
       </div>
       <div class="log-area" id="log-area">
-        <div class="loading-msg">Cargando logs…</div>
+        <div class="loading-msg" data-i18n="logs.loading">Loading logs…</div>
       </div>
     </section>
-    <!-- └───────────────────────────────────────────────────────────────┘ -->
-
-    <!-- ┌─ PANEL: DRAWING ──────────────────────────────────────────────┐ -->
-    <section class="panel" id="panel-drawing">
-      <div class="panel-header">
-        <h2>Dibujo activo y proyecto</h2>
-        <div class="panel-actions">
-          <button class="btn-sm" id="btn-refresh-drawing">↻ Actualizar</button>
-        </div>
-      </div>
-      <div class="drawing-info" id="drawing-info">
-        <div class="loading-msg">Cargando información del dibujo…</div>
-      </div>
-    </section>
-    <!-- └───────────────────────────────────────────────────────────────┘ -->
 
   </main>
+
+  <!-- ── RIGHT PANEL: Drawing Files ──────────────────────────────────── -->
+  <aside class="right-panel" id="right-panel">
+
+    <!-- Header -->
+    <div class="rp-header">
+      <div class="rp-title-group">
+        <span class="rp-title"    id="rp-title"></span>
+        <span class="rp-subtitle" id="rp-subtitle"></span>
+      </div>
+      <button class="btn-icon rp-refresh-btn" id="rp-btn-refresh">↻</button>
+    </div>
+
+    <!-- Open Drawing button -->
+    <div class="rp-open-area">
+      <button class="rp-btn-open" id="rp-btn-open">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        <span id="rp-btn-open-label"></span>
+      </button>
+    </div>
+
+    <!-- File list -->
+    <div class="rp-list" id="rp-list">
+      <div class="loading-msg">…</div>
+    </div>
+
+    <!-- Tip -->
+    <div class="rp-tip">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:1px;opacity:.7">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <span id="rp-tip-text"></span>
+    </div>
+
+  </aside>
+
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<!--  TOAST NOTIFICATION                                                      -->
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- Toast notification -->
 <div class="toast" id="toast"></div>
 
 <script src="/static/js/api.js"></script>
+<script src="/static/js/i18n.js"></script>
 <script src="/static/js/main.js"></script>
 </body>
 </html>

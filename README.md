@@ -9,9 +9,23 @@
 
 ---
 
+## Screenshots
+
+| English UI | Spanish UI |
+|:---:|:---:|
+| ![English dashboard](docs/images/ui-english.png) | ![Spanish dashboard](docs/images/ui-spanish.png) |
+
+| Drawing Files Panel | Active Drawing Highlighted |
+|:---:|:---:|
+| ![Drawing files right panel](docs/images/right-panel-drawings.png) | ![Active drawing](docs/images/drawing-active.png) |
+
+---
+
 ## Overview
 
 **AUTOCAD-ELECTRICAL-MCP** bridges AI models and AutoCAD Electrical 2025. It exposes **46 AutoCAD operations** as [Model Context Protocol (MCP)](https://modelcontextprotocol.io) tools, enabling AI assistants to draw, annotate, wire, and generate reports directly inside AutoCAD — using natural language.
+
+![Main dashboard](docs/images/dashboard-main.png)
 
 ![System architecture](docs/images/architecture.svg)
 
@@ -36,21 +50,136 @@ Two fully independent operation modes share the same tool core:
 - **Local web dashboard** (FastAPI + vanilla JS) — works fully offline, no API key needed
 - **COM automation** via pywin32 — direct, reliable connection to AutoCAD Electrical 2025
 - **Zero-dependency frontend** — no Node.js, no npm, no build step
+- **Bilingual UI** — English / Español, auto-detected from browser, instant switch, persisted in `localStorage`
+- **PWA** — installable as a standalone desktop app (Chrome / Edge) with its own icon and taskbar entry
+- **Drawing Files panel** — persistent right sidebar listing all open DWGs with file size, last-modified time, and active drawing highlighted in green
+- **Service worker** — cache-versioned static assets, offline API fallback, cache-first with stale-while-revalidate
 
 ---
 
-## Web Dashboard
+## Web Interface
 
-![Dashboard overview](docs/images/dashboard-overview.svg)
+The web dashboard is a FastAPI + vanilla JS single-page app served locally at `http://127.0.0.1:8080`.
 
-The dashboard provides four panels:
+### Running locally
 
-- **Chat** — natural-language instructions with drawing-mode selector (Auto / Electrical / 2D / 3D)
-- **Tools** — searchable browser of all 46 tools grouped by category
-- **Logs** — real-time system log with level filter
-- **Drawing** — active drawing and project metadata
+```bash
+# Start the web server (opens browser automatically)
+python start_web.py
 
-![Tools panel](docs/images/tools-panel.svg)
+# Or specify host/port explicitly
+python start_web.py --host 127.0.0.1 --port 8080 --no-browser
+```
+
+The dashboard has a **persistent three-column layout**: left sidebar navigation · main content · right Drawing Files panel.
+
+#### Main panels (left sidebar)
+
+| Panel | Description |
+|-------|-------------|
+| **Chat** | Natural-language instructions with drawing-mode selector (Auto / Electrical / 2D / 3D) |
+| **Tools** | Searchable browser of all 46 tools grouped by category |
+| **Drawings** | Open, list, activate, and track recently used DWG files |
+| **Logs** | Real-time system log with level filter |
+
+#### Drawing Files panel (always visible, right side)
+
+The right panel is always visible alongside the main content. It shows all DWG files currently open in AutoCAD:
+
+- File name, **file size**, and **time since last save** for each drawing
+- The active drawing is highlighted with a green border and an **● ACTIVO / ● ACTIVE** badge
+- Click any drawing to activate it instantly
+- **+ Abrir Drawing / + Open Drawing** button opens the drawing form in the main panel
+- Auto-refreshes every 15 seconds; click ↻ to refresh manually
+
+![Drawing Files panel](docs/images/right-panel-drawings.png)
+
+---
+
+## Drawing Selection
+
+The **Drawings** panel lets you manage DWG files directly from the web interface.
+
+### How it works
+
+1. Click **Drawings** in the left sidebar
+2. The panel fetches all drawings currently open in AutoCAD
+3. The **active drawing** is highlighted in green — all AI instructions execute against it
+4. To activate a different drawing, click **Activate** on any card in the list
+5. To open a drawing from the project folder, click **+ Open Drawing** and type a sheet number or filename (e.g. `Sheet_03` or `Panel_Control.dwg`)
+6. Recently activated drawings are stored locally and appear in the **Recent Drawings** section for quick access
+
+### How activation works
+
+Under the hood, "activate" calls `open_drawing(name)` which:
+1. Searches for the drawing among AutoCAD's already-open documents — if found, sets it as `ActiveDocument`
+2. If not found among open docs, scans the same directory as the current drawing for matching `.dwg` files and opens them
+
+AutoCAD must be running with at least one drawing open for this to work.
+
+---
+
+## Language Support
+
+The interface supports **English** and **Español**. Switch with the `EN` / `ES` toggle in the top-right corner.
+
+### Behaviour
+
+- Language is auto-detected from the browser on first load (`navigator.language`)
+- Spanish is used if the browser reports `es-*`; English otherwise
+- Manual selection is saved to `localStorage` and persists across sessions
+- The switch is instant — no page reload required
+- The AI assistant receives the selected language and responds in that language
+
+### Adding a new language
+
+1. Open [`web/frontend/js/i18n.js`](web/frontend/js/i18n.js)
+2. Copy the `en` block and add a new key, e.g. `fr: { ... }`
+3. Translate all string values (keep AutoCAD, DWG, MCP, Ollama untranslated)
+4. Add a `<button class="lang-btn" data-lang="fr">FR</button>` inside `.lang-switcher` in `index.html`
+
+No build step, no dependencies — just edit the JS object and add the button.
+
+---
+
+## PWA Support
+
+The web interface is a full **Progressive Web App (PWA)**. You can install it as a standalone desktop application — no browser chrome, its own taskbar icon, launches like any native app.
+
+### What's included
+
+| File | Purpose |
+|------|---------|
+| `web/frontend/manifest.json` | App name, icons, colors, display mode |
+| `web/frontend/sw.js` | Service worker — caches static assets, offline fallback |
+| `web/frontend/icons/icon-192.png` | Standard icon 192×192 |
+| `web/frontend/icons/icon-512.png` | Standard icon 512×512 |
+| `web/frontend/icons/icon-512-maskable.png` | Maskable icon (safe-zone padding) |
+| `web/frontend/icons/favicon.png` | Browser tab favicon 32×32 |
+
+### Installing on Desktop (Chrome / Edge — Windows & Mac)
+
+1. Start the web server: `python start_web.py`
+2. Open `http://127.0.0.1:8080` in **Chrome** or **Edge**
+3. An **"Install App"** button appears in the top-right corner of the dashboard
+4. Click it — the browser shows the native install dialog
+5. Click **Install** — the app opens as a standalone window with its own taskbar / Dock icon
+
+> **Shortcut:** In Chrome/Edge you can also click the install icon (⊕) in the address bar, or go to `⋮ → Install AutoCAD MCP`.
+
+After installation the app:
+- Opens as a standalone window (no browser address bar)
+- Appears in the Windows Start Menu / taskbar with its own icon
+- Loads static assets from cache when the server is not yet running
+- Automatically reconnects to the backend when the server starts
+
+### Regenerating icons
+
+Icons are generated by a pure-Python script — no external dependencies:
+
+```bash
+python scripts/generate_icons.py
+```
 
 ---
 
@@ -278,18 +407,28 @@ AUTOCAD-ELECTRICAL-MCP/
 │   │   ├── chat.py            # Keyword router + compound planner + LLM dispatch
 │   │   └── state.py           # Log buffer and chat history
 │   └── frontend/
-│       ├── index.html         # Single-page dashboard
-│       ├── css/style.css      # Dark premium theme
+│       ├── index.html         # Single-page dashboard (3-column layout)
+│       ├── manifest.json      # PWA manifest — name, icons, display mode
+│       ├── sw.js              # Service worker — cache-versioned static assets
+│       ├── css/style.css      # Dark premium theme + right panel styles
+│       ├── icons/             # PWA icons (192×192, 512×512, maskable, favicon)
 │       └── js/
 │           ├── api.js         # Backend API client
-│           └── main.js        # UI state, mode selector, event logic
+│           ├── i18n.js        # Internationalisation engine (EN / ES)
+│           └── main.js        # UI state, drawing panel, right panel, mode selector
 ├── docs/
 │   └── images/
 │       ├── architecture.svg        # System architecture diagram
 │       ├── dashboard-overview.svg  # Web dashboard UI mockup
-│       └── tools-panel.svg         # Tools panel with all 46 tools
+│       ├── tools-panel.svg         # Tools panel with all 46 tools
+│       ├── dashboard-main.png      # Screenshot — main dashboard
+│       ├── right-panel-drawings.png# Screenshot — Drawing Files panel
+│       ├── drawing-active.png      # Screenshot — active drawing highlighted
+│       ├── ui-english.png          # Screenshot — English interface
+│       └── ui-spanish.png          # Screenshot — Spanish interface
 ├── scripts/
 │   ├── install.py             # Automated setup
+│   ├── generate_icons.py      # Pure-Python PWA icon generator (no Pillow)
 │   ├── test_connection.py     # AutoCAD COM diagnostic
 │   ├── switch_model.py        # CLI provider/model switcher
 │   └── ollama_manager.py      # Ollama model library manager
@@ -331,7 +470,12 @@ python scripts/test_connection.py
 | GET | `/api/providers` | Configured AI providers |
 | POST | `/api/providers/switch` | Switch active provider |
 | GET | `/api/logs` | System log entries |
+| DELETE | `/api/logs` | Clear log buffer |
+| GET | `/api/history` | Chat history |
+| DELETE | `/api/history` | Clear chat history |
 | GET | `/api/drawing/info` | Active drawing and project info |
+| GET | `/api/drawings` | All open DWGs with `file_size` and `last_modified` |
+| POST | `/api/drawings/open` | Open or activate a drawing by name / sheet number |
 | GET | `/api/docs` | Interactive Swagger documentation |
 
 ---
