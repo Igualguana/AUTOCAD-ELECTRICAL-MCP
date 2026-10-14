@@ -185,6 +185,11 @@ class OllamaProvider(BaseProvider):
                     f"{self._base_url}/api/chat",
                     json=payload,
                 ) as response:
+                    if response.is_error:
+                        # Load the body so the HTTPStatusError handler can
+                        # read exc.response.text (streamed responses are
+                        # otherwise unread and raise ResponseNotRead).
+                        await response.aread()
                     response.raise_for_status()
                     async for line in response.aiter_lines():
                         if not line.strip():
@@ -460,6 +465,8 @@ class OllamaProvider(BaseProvider):
                 f"{self._base_url}/api/pull",
                 json=payload,
             ) as response:
+                if response.is_error:
+                    await response.aread()  # let callers read exc.response.text
                 response.raise_for_status()
                 async for line in response.aiter_lines():
                     if not line.strip():

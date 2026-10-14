@@ -8,6 +8,7 @@ dispatch, and safe accessor methods.
 from __future__ import annotations
 
 import logging
+import threading
 import time
 from typing import Any, Optional
 
@@ -254,10 +255,14 @@ class AutoCADConnection:
 
 
 # ---------------------------------------------------------------------------
-# Module-level singleton
+# Per-thread singleton
 # ---------------------------------------------------------------------------
 
-_connection_instance: AutoCADConnection | None = None
+# COM interface pointers are bound to the thread (apartment) that created
+# them; using one from another thread fails with RPC_E_WRONG_THREAD. Threaded
+# hosts such as the FastAPI web backend serve requests from a worker pool, so
+# each thread keeps its own connection.
+_local = threading.local()
 
 
 def get_connection(
@@ -265,7 +270,7 @@ def get_connection(
     timeout: int = 30,
     auto_connect: bool = True,
 ) -> AutoCADConnection:
-    """Return the module-level :class:`AutoCADConnection` singleton.
+    """Return the calling thread's :class:`AutoCADConnection` singleton.
 
     Parameters
     ----------
@@ -277,17 +282,18 @@ def get_connection(
         When ``True`` (default), call :meth:`~AutoCADConnection.connect` if
         the instance is not already connected.
     """
-    global _connection_instance
-    if _connection_instance is None:
-        _connection_instance = AutoCADConnection(
-            com_object=com_object, timeout=timeout
-        )
-    if auto_connect and not _connection_instance.is_connected():
-        _connection_instance.connect()
-    return _connection_instance
+    conn: AutoCADConnection | None = getattr(_local, "connection", None)
+    if conn is None:
+        if _WIN32_AVAILABLE:
+            import pythoncom
+            pythoncom.CoInitialize()
+        conn = AutoCADConnection(com_object=com_object, timeout=timeout)
+        _local.connection = conn
+    if auto_connect and not conn.is_connected():
+        conn.connect()
+    return conn
 
 
 def reset_connection() -> None:
-    """Discard the cached connection singleton (useful for testing)."""
-    global _connection_instance
-    _connection_instance = None
+    """Discard the calling thread's cached connection (useful for testing)."""
+    _local.connection = None
